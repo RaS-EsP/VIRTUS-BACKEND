@@ -1,0 +1,83 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id   String  @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  name String
+  last_name String
+  email String @unique
+  username String
+  created_at  DateTime   @default(now())
+  trainer Trainer @relation(fields: [trainer_id], references: [id])
+  trainer_id String @db.Uuid
+  trainings Training[]
+}
+
+model Trainer {
+  id   String  @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  name String
+  last_name String
+  email String @unique
+  username String @db.VarChar(240)
+  created_at  DateTime   @default(now())
+  clients Client[]
+  exercises Exercise[]
+  trainings Training[]
+}
+
+model Exercise {
+    id   String  @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  name String 
+  description String
+  categories Categories[] @relation("exercise_categories") 
+  video_link String
+  trainer Trainer @relation(fields: [trainer_id], references: [id])
+  trainer_id String @db.Uuid
+  created_at  DateTime   @default(now())
+  updated_at DateTime  @updatedAt
+  trainings Training[] @relation("Exercise_in_training")
+  exercise_details Training_Detail[]
+}
+
+model Training {
+    id   String  @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  trainer Trainer @relation(fields: [trainer_id], references: [id])
+  trainer_id String @db.Uuid
+  name String
+  description String
+  created_at  DateTime   @default(now())
+  updated_at DateTime  @updatedAt
+  exercises Exercise[] @relation("Exercise_in_training")
+  training_details Training_Detail[]
+  client Client @relation(fields: [client_id], references: [id])
+  client_id String @db.Uuid
+}
+
+model Training_Detail {
+    id   String  @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  training Training @relation(fields: [training_id], references: [id])
+  training_id String @db.Uuid
+  exercise Exercise @relation(fields: [exercise_id], references: [id])
+  exercise_id String @db.Uuid
+  sets Int
+  repetitions Int
+  rest Int
+  rir Int
+  weight Int
+}
+
+model Categories {
+      id   String  @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+    name String
+    exercises Exercise[] @relation("exercise_categories")
+}
+

@@ -1,6 +1,6 @@
 -- CreateTable
 CREATE TABLE "Client" (
-    "id" UUID NOT NULL DEFAULT public.uuid_generate_v4(),
+    "id" UUID NOT NULL,
     "name" TEXT NOT NULL,
     "last_name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
@@ -13,8 +13,9 @@ CREATE TABLE "Client" (
 
 -- CreateTable
 CREATE TABLE "Trainer" (
-    "id" UUID NOT NULL DEFAULT public.uuid_generate_v4(),
+    "id" UUID NOT NULL,
     "name" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
     "last_name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "username" VARCHAR(240) NOT NULL,
@@ -25,7 +26,7 @@ CREATE TABLE "Trainer" (
 
 -- CreateTable
 CREATE TABLE "Exercise" (
-    "id" UUID NOT NULL DEFAULT public.uuid_generate_v4(),
+    "id" UUID NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "video_link" TEXT NOT NULL,
@@ -38,7 +39,7 @@ CREATE TABLE "Exercise" (
 
 -- CreateTable
 CREATE TABLE "Training" (
-    "id" UUID NOT NULL DEFAULT public.uuid_generate_v4(),
+    "id" UUID NOT NULL,
     "trainer_id" UUID NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
@@ -51,7 +52,7 @@ CREATE TABLE "Training" (
 
 -- CreateTable
 CREATE TABLE "Training_Detail" (
-    "id" UUID NOT NULL DEFAULT public.uuid_generate_v4(),
+    "id" UUID NOT NULL,
     "training_id" UUID NOT NULL,
     "exercise_id" UUID NOT NULL,
     "sets" INTEGER NOT NULL,
@@ -65,7 +66,7 @@ CREATE TABLE "Training_Detail" (
 
 -- CreateTable
 CREATE TABLE "Categories" (
-    "id" UUID NOT NULL DEFAULT public.uuid_generate_v4(),
+    "id" UUID NOT NULL,
     "name" TEXT NOT NULL,
 
     CONSTRAINT "Categories_pkey" PRIMARY KEY ("id")

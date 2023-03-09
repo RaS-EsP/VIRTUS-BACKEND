@@ -1,5 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 import express from 'express'
+import {v4 as uuidv4} from "uuid"
+const bcrypt = require('bcrypt');
 
 const prisma = new PrismaClient()
 const app = express()
@@ -19,14 +21,19 @@ app.get('/trainers', async (req, res) => {
     res.json(post)
   })
 
-  app.post(`/trainers`, async (req, res) => {
-    const { name, last_name, email, username } = req.body
+  app.post(`/trainers/signup`, async (req, res) => {
+    let myuuid = uuidv4()
+    const id = myuuid
+    const {name, last_name, email, username, password: plainPassword } = req.body
+    const password = await bcrypt.hash(plainPassword,10)
     const result = await prisma.trainer.create({
       data: {
+        id,
         name,
         last_name,
         email,
         username,
+        password
       },
     })
     res.json(result)

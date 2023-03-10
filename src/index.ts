@@ -1,7 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import express from "express";
 import { v4 as uuidv4 } from "uuid";
-import { VerifyErrors } from "jsonwebtoken";
+import { VerifyErrors, JwtPayload } from "jsonwebtoken";
+import { JsonWebKey } from "crypto";
 require("dotenv").config();
 
 const jwt = require("jsonwebtoken");
@@ -108,16 +109,14 @@ app.post(
 );
 
 app.delete(
-  `/trainers/delete/:id`,
+  `/trainers/delete`,
   verifyToken,
   async (req: express.Request, res: express.Response) => {
     try {
-      const { id } = req.params;
-
-      // @todo: check if the id from my jwt is the same I wanna remove.
       const trainerDeleted = await prisma.trainer.delete({
-        where: { id: id },
+        where: { id: req.authData?.foundTrainer.id },
       });
+      
 
       if (!trainerDeleted) {
         res.status(403).json({ error: "Something is not working" });
@@ -138,19 +137,25 @@ app.get(
   async (req: express.Request, res: express.Response) => {
     try {
       const { id } = req.params;
-
-      // @todo: do we want to show the email or the password to anyone is requesting the profile?
       const userInfo = await prisma.trainer.findUnique({
         where: {
           id: id,
         },
+        select: {
+          id: true,
+          name: true,
+          last_name: true,
+          email: true,
+          username: true,
+          created_at: true
+
+        }
       });
 
       if (!userInfo) {
         res.status(403).json({ error: "Something is not working" });
         return;
       }
-
       return res.json({
         data: {
           trainer: userInfo,
@@ -160,8 +165,17 @@ app.get(
       console.error(error);
       res.status(500).json({ error: "Internal server error" });
     }
+  
   }
 );
+
+declare global {
+  namespace Express {
+    interface Request {
+      authData?: JwtPayload;
+    }
+  }
+}
 
 function verifyToken(
   req: express.Request,
@@ -183,12 +197,12 @@ function verifyToken(
     return;
   }
 
-  jwt.verify(token, process.env.SECRET, (error?: VerifyErrors) => {
+  jwt.verify(token, process.env.SECRET, (error?: VerifyErrors, authData?: JwtPayload | undefined ) => {
     if (error) {
       res = injectErrorWhileReadingJWT(res);
       return;
     }
-
+    req.authData = authData
     next();
   });
 }

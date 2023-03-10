@@ -91,6 +91,9 @@ CREATE UNIQUE INDEX "Client_email_key" ON "Client"("email");
 CREATE UNIQUE INDEX "Trainer_email_key" ON "Trainer"("email");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Trainer_username_key" ON "Trainer"("username");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "_Exercise_in_training_AB_unique" ON "_Exercise_in_training"("A", "B");
 
 -- CreateIndex

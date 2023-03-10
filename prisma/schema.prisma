@@ -28,7 +28,7 @@ model Trainer {
   password String
   last_name String
   email String @unique
-  username String @db.VarChar(240)
+  username String @db.VarChar(240) @unique
   created_at  DateTime   @default(now())
   clients Client[]
   exercises Exercise[]

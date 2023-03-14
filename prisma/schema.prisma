@@ -33,10 +33,11 @@ model Trainer {
   clients Client[]
   exercises Exercise[]
   trainings Training[]
+  categories Categories[]
 }
 
 model Exercise {
-    id   String  @id  @db.Uuid
+  id   String  @id  @db.Uuid
   name String 
   description String
   categories Categories[] @relation("exercise_categories") 
@@ -77,8 +78,10 @@ model Training_Detail {
 }
 
 model Categories {
-      id   String  @id  @db.Uuid
+    id   String  @id  @db.Uuid
     name String
+    trainer Trainer @relation(fields: [trainer_id], references: [id])
+    trainer_id String @db.Uuid
     exercises Exercise[] @relation("exercise_categories")
 }
 

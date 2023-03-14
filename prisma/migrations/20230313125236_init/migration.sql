@@ -68,6 +68,7 @@ CREATE TABLE "Training_Detail" (
 CREATE TABLE "Categories" (
     "id" UUID NOT NULL,
     "name" TEXT NOT NULL,
+    "trainer_id" UUID NOT NULL,
 
     CONSTRAINT "Categories_pkey" PRIMARY KEY ("id")
 );
@@ -122,6 +123,9 @@ ALTER TABLE "Training_Detail" ADD CONSTRAINT "Training_Detail_training_id_fkey" 
 
 -- AddForeignKey
 ALTER TABLE "Training_Detail" ADD CONSTRAINT "Training_Detail_exercise_id_fkey" FOREIGN KEY ("exercise_id") REFERENCES "Exercise"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Categories" ADD CONSTRAINT "Categories_trainer_id_fkey" FOREIGN KEY ("trainer_id") REFERENCES "Trainer"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_Exercise_in_training" ADD CONSTRAINT "_Exercise_in_training_A_fkey" FOREIGN KEY ("A") REFERENCES "Exercise"("id") ON DELETE CASCADE ON UPDATE CASCADE;

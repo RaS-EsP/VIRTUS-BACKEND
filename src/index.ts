@@ -3,6 +3,7 @@ import express from "express";
 import { v4 as uuidv4 } from "uuid";
 import { VerifyErrors, JwtPayload } from "jsonwebtoken";
 import { JsonWebKey } from "crypto";
+import { json } from "stream/consumers";
 require("dotenv").config();
 
 const jwt = require("jsonwebtoken");
@@ -168,12 +169,72 @@ app.get(
   
   }
 );
-
-declare global {
-  namespace Express {
-    interface Request {
-      authData?: JwtPayload;
+app.post(
+  "/trainers/category",
+  verifyToken,
+  async (req: express.Request, res: express.Response) => {
+    console.log(req.body)
+    const {
+      name
+    }  = req.body;
+    const newCategory = await prisma.categories.create({
+      data: {
+        id: uuidv4(),
+        name : name, 
+        trainer_id: req.authData?.foundTrainer.id
+      },
+    });
+    res.json({
+      data : {
+        Category : newCategory
+      }
+    })
+  
+  }
+);
+ app.post(
+   "/trainers/exercise",
+   verifyToken,
+   async (req: express.Request, res: express.Response) => { 
+    try {
+     const {
+       name,video_link,description
+     } = req.body
+     const exerciseAlreadyExists = await exerciseExists(name, req.authData?.foundTrainer.id);
+     if (exerciseAlreadyExists) {
+       return res.status(409).json({ error: "Exercise already exists" });
+     }
+     const newExercises = await prisma.exercise.create({
+       data: {
+        id: uuidv4(),
+        name, 
+        description,
+        video_link,
+        trainer_id: req.authData?.foundTrainer.id,   
+        categories: {
+        connect: req.body.categories.map(( category: string)=>({id: category}))
+        }
+       },
+       include: {
+        categories: true,
+      },
+     });
+     res.json({
+       data : {
+         Exercise : newExercises
+       }
+     })
+    } catch(e) {
+      res.status(500).json({ error: "error creating the exercise" });
     }
+   }
+ );
+
+
+
+declare module 'express' {
+  interface Request {
+    authData?: JwtPayload;
   }
 }
 
@@ -189,7 +250,7 @@ function verifyToken(
     return;
   }
 
-  let token: String;
+  let token: string;
   try {
     token = bearerHeader.split(" ")[1];
   } catch (e) {
@@ -215,6 +276,16 @@ const injectErrorWhileReadingJWT = (
   });
   return res;
 };
+
+async function exerciseExists(name: string, trainerId: string): Promise<boolean> {
+  const exercise = await prisma.exercise.findFirst({
+    where: {
+      name,
+      trainer_id: trainerId,
+    },
+  });
+  return !!exercise;
+}
 
 app.listen(3000, () =>
   console.log("REST API server ready at: http://localhost:3000")
